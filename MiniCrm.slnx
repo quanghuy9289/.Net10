@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MiniCrm.Cli/MiniCrm.Cli.csproj" />
+    <Project Path="src/MiniCrm.Domain/MiniCrm.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MiniCrm.Domain.Tests/MiniCrm.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
