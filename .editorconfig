@@ -1,0 +1,2 @@
+dotnet_diagnostic.IDE0130.severity = error   # namespace phải khớp cấu trúc thư mục
+indent_style = space
