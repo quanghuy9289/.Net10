@@ -37,4 +37,9 @@ public sealed class InMemoryCustomerRepository : ICustomerRepository
     {
         return Task.FromResult<IReadOnlyList<Customer>>([.. _customers.Values]);
     }
+
+    public Task<int> CountAsync(CancellationToken cancellationToken)
+    {
+        return Task.Delay(3000, cancellationToken).ContinueWith(_ => _customers.Count);
+    }
 }

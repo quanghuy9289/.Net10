@@ -43,8 +43,9 @@ public sealed class CustomerServiceTest
 
         var result = await service.GetCustomerByIdAsync(customer.Id, CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.NotNull(result.Value);
+        //Assert.NotNull(result);
+        //Assert.NotNull(result.Value);
+        Assert.True(result.IsSuccess);
         Assert.Equal(customer.Id, result.Value.Id);
     }
 

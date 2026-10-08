@@ -1,5 +1,5 @@
 # Tiến độ
-Hiện tại: Tuần 1, Ngày 0
+Hiện tại: Tuần 2, Ngày 6
 
 ## Đã hoàn thành
 - Ngày 0 — Chuẩn bị môi trường
@@ -7,6 +7,8 @@ Hiện tại: Tuần 1, Ngày 0
 - Ngày 2 - SDK-style csproj & TFM
 - Ngày 3 - NuGet & quản lý dependency
 - Ngày 4 - Domain code + test, làm quen C# hiện đại
+- Ngày 5 - Tổng kết tuần 1 + nullable reference types cho nghiêm túc
+- Ngày 6 - Generic Host + Worker
 
 ## Câu hỏi còn treo
 (những chỗ chưa hiểu, chưa giải quyết)
@@ -80,6 +82,15 @@ netstandard2.0 bắt buộc khi assembly được tiêu thụ như một file m�
 | 5 | throw ValidationException từ business layer | Result<T> | Khả năng thất bại nằm trong kiểu trả về; domain không biết HTTP |
 | 6 | FirstOrDefault() trả null ngầm | Task<Customer?> | Compiler ép caller xử lý null |
 | 7 | Dictionary + lock thủ công | ConcurrentDictionary | Không còn tự quản lý lock |
+| 8 | Mọi reference type đều có thể null, signature không nói gì | T vs T? + flow analysis | Chỉ có lúc compile, không có check ở runtime |
+| 9 | if (x == null) throw new ArgumentNullException(nameof(x)) | ArgumentNullException.ThrowIfNull(x) | Có [NotNull] nên compiler hiểu |
+| 10 | Property "bắt buộc" chỉ nhờ ghi chú | required | Thiếu thì lỗi compile |
+| 11 | Application_Start | Phần đăng ký trong Program.cs + IHostedService.StartAsync / ApplicationStarted | Tách rõ "đăng ký" và "chạy". Có thứ tự xác định |
+| 12 | Application_End | ApplicationStopping → StopAsync → ApplicationStopped | Có token hủy và timeout rõ ràng. Application_End không đảm bảo được gọi |
+| 13 | Application_Error | Worker: BackgroundServiceExceptionBehavior. Web: middleware (tuần 3) | 
+| 14 | HostingEnvironment.QueueBackgroundWorkItem, IRegisteredObject | BackgroundService | Trong IIS, AppDomain có thể recycle bất cứ lúc nào (idle timeout, recycle định kỳ), nên background work rất mong manh |
+| 15 | Windows Service (ServiceBase) | Worker + AddWindowsService() (package Microsoft.Extensions.Hosting.WindowsServices) | Cùng một code chạy được cả dạng console, Windows Service, systemd hay container |
+| 16 | System.Timers.Timer khởi tạo trong Global.asax | BackgroundService + PeriodicTimer | Có async, có cancellation, có DI |
 
 ## Blocker migration
 | Issue | .Net Framework | .Net 10 | Cách sửa |
