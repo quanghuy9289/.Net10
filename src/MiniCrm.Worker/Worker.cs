@@ -1,8 +1,11 @@
 using MiniCrm.Domain.Abstractions;
+using MiniCrm.Domain.Common;
+using MiniCrm.Domain.Entities;
+using MiniCrm.Domain.Validation;
 
 namespace MiniCrm.Worker;
 
-public class Worker(ICustomerRepository customerRepository, ILogger<Worker> logger) : BackgroundService // a hosted service that runs in the background
+public class Worker(IServiceScopeFactory serviceScopeFactory, ILogger<Worker> logger) : BackgroundService // a hosted service that runs in the background
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -16,9 +19,23 @@ public class Worker(ICustomerRepository customerRepository, ILogger<Worker> logg
             try
             {
                 logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} Counting customers..."); // log that we are counting customers
-                var count = await customerRepository.CountAsync(stoppingToken); // get the count of customers from the repository
-                //var count = await customerRepository.CountAsync(CancellationToken.None); // get the count of customers from the repository
-                logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} Customer count: {count}"); // log the count
+                
+                await using var scope = serviceScopeFactory.CreateAsyncScope(); // create a new scope
+                var customerService = scope.ServiceProvider.GetRequiredService<ICustomerService>(); // resolve ICustomerService from the service provider
+                var count = await customerService.CountCustomerAsync(stoppingToken); // get the count of customers from the service
+                //var count = await customerService.CountAsync(CancellationToken.None); // get the count of customers from the service
+
+                Result<Customer> addResult = await customerService.AddCustomerAsync(new CustomerRequest { Name = "Worker Customer", Email = "worker" }, CancellationToken.None);
+                
+                if (!addResult.IsSuccess)
+                {
+                    logger.LogWarning("Failed to add customer: {Errors}", addResult.Errors.Select(e => $"{e.Field}: {e.Message}").ToArray()); // log the validation errors
+                }
+                else if (addResult is Result<Customer> successResult)
+                {
+                    logger.LogInformation("Successfully added customer: {CustomerId}", successResult.Value.Id);
+                    logger.LogInformation($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} Customer count: {count}"); // log the count
+                }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) // if cancellation is requested, log and exit
             {

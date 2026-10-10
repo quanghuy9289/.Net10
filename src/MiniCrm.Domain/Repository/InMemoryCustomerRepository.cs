@@ -7,7 +7,14 @@ namespace MiniCrm.Domain.Repository;
 
 public sealed class InMemoryCustomerRepository : ICustomerRepository
 {
-    private readonly ConcurrentDictionary<Guid, Customer> _customers = [];
+    public Guid InstanceId { get; } = Guid.NewGuid(); // unique identifier for this instance of the repository
+    private readonly ConcurrentDictionary<Guid, Customer> _customers = new();
+
+    public InMemoryCustomerRepository(InMemoryStore store)
+    {
+        // Initialize the customer store
+        _customers = store.GetStore<Customer>();
+    }
 
     public Task<Customer?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {

@@ -2,13 +2,15 @@ using MiniCrm.Domain.Entities;
 using MiniCrm.Domain.Common;
 using MiniCrm.Domain.Validation;
 using MiniCrm.Domain.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace MiniCrm.Domain.Services;
 
-public sealed class CustomerService(ICustomerRepository customerRepository, CustomerValidator customerValidator)
+public sealed class CustomerService(ICustomerRepository customerRepository, IEnumerable<ICustomerValidator> customerValidators, ILogger<CustomerService> logger) : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository = customerRepository;
-    private readonly CustomerValidator _customerValidator = customerValidator;
+    private readonly IEnumerable<ICustomerValidator> _customerValidators = customerValidators;
+    private readonly ILogger<CustomerService> _logger = logger;
 
     public async Task<Result<Customer>> GetCustomerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -22,9 +24,17 @@ public sealed class CustomerService(ICustomerRepository customerRepository, Cust
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var validationErrors = _customerValidator.ValidateCustomer(request);
+        var validationErrors = new List<ValidationError>();
 
-        if (validationErrors.Count > 0)
+        foreach (var validator in _customerValidators)
+        {
+            var result = validator.ValidateCustomer(request);
+            if (!result.IsSuccess)
+            {
+                validationErrors.AddRange(result.Errors);
+            }
+        }
+        if (validationErrors.Any())
         {
             return Result<Customer>.Failure(validationErrors);
         }
@@ -48,9 +58,17 @@ public sealed class CustomerService(ICustomerRepository customerRepository, Cust
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var validationErrors = _customerValidator.ValidateCustomer(request);
+        var validationErrors = new List<ValidationError>();
 
-        if (validationErrors.Count > 0)
+        foreach (var validator in _customerValidators)
+        {
+            var result = validator.ValidateCustomer(request);
+            if (!result.IsSuccess)
+            {
+                validationErrors.AddRange(result.Errors);
+            }
+        }
+        if (validationErrors.Any())
         {
             return Result<Customer>.Failure(validationErrors);
         }
@@ -101,4 +119,10 @@ public sealed class CustomerService(ICustomerRepository customerRepository, Cust
     {
         return await _customerRepository.GetAllAsync(cancellationToken);
     }
+
+    public Task<int> CountCustomerAsync(CancellationToken cancellationToken)
+    {
+        return _customerRepository.CountAsync(cancellationToken);
+    }
 }
+

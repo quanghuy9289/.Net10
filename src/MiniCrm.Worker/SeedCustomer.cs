@@ -1,16 +1,10 @@
 using MiniCrm.Domain.Abstractions;
 using MiniCrm.Domain.Entities;
 
-public sealed class SeedCustomer : IHostedService
+public sealed class SeedCustomer(IServiceScopeFactory serviceScopeFactory, ILogger<SeedCustomer> logger) : IHostedService
 {
-    private readonly ICustomerRepository _customerRepository;
-    private readonly ILogger<SeedCustomer> _logger;
-
-    public SeedCustomer(ICustomerRepository customerRepository, ILogger<SeedCustomer> logger)
-    {
-        _customerRepository = customerRepository;
-        _logger = logger;
-    }
+    private readonly ICustomerRepository _customerRepository = serviceScopeFactory.CreateAsyncScope().ServiceProvider.GetRequiredService<ICustomerRepository>();
+    private readonly ILogger<SeedCustomer> _logger = logger;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -27,6 +21,9 @@ public sealed class SeedCustomer : IHostedService
         {
             await _customerRepository.AddAsync(customer, cancellationToken);
         }
+
+        var count = await _customerRepository.CountAsync(cancellationToken);
+        _logger.LogInformation($"Seeded {count} customers."); // log the number of customers
 
         _logger.LogInformation("Customers seeded successfully.");
     }
