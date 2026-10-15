@@ -4,9 +4,36 @@ using MiniCrm.Domain.Services;
 using MiniCrm.Domain.Validation;
 using MiniCrm.Worker;
 using MiniCrm.Worker.Notification;
+using Microsoft.Extensions.Options;
 
 var builder = Host.CreateApplicationBuilder(args); // config + logging + DI
 
+if (builder.Environment.IsDevelopment())
+{
+    var root = (IConfigurationRoot)builder.Configuration;
+    Console.WriteLine($"[config] ConnectionStrings:MiniCrm => {root.GetConnectionString("MiniCrm")}"); // get the connection string for MiniCrm
+    
+    foreach(var provider in root.Providers.Reverse())
+    {
+        if (provider.TryGet("MiniCrm:PageSize", out var value))
+        {
+            Console.WriteLine($"[config] {provider} => {value}"); // log the provider and value for MiniCrm:PageSize
+        }
+        else
+        {
+            Console.WriteLine($"[config] {provider} => MiniCrm:PageSize not found");
+        }
+    }
+}
+
+builder.Services
+    .AddOptions<MiniCrmOptions>()
+    .BindConfiguration(MiniCrmOptions.SectionName,
+        binder => binder.ErrorOnUnknownConfiguration = true) // bind MiniCrmOptions to configuration section
+    .ValidateDataAnnotations(); // validate MiniCrmOptions using data annotations
+    //.ValidateOnStart(); // validate MiniCrmOptions on startup
+
+builder.Services.AddHostedService<ConfigDemoWorker>(); // register ConfigDemoWorker as a Singleton IHostedService
 builder.Services.AddMiniCrmDomain(); // register domain services and repositories
 
 builder.Services.AddKeyedSingleton<INotificationSender, EmailNotificationSender>(NotificationChannels.Email); // register INotificationSender with its implementation  
@@ -31,7 +58,7 @@ builder.Services.AddSingleton(sp =>
 //builder.Services.AddHostedService<LifecycleDemo>(); // register LifecycleDemo as a Singleton IHostedService
 
 //builder.Services.AddHostedService<SeedCustomer>(); // register SeedCustomer as a Singleton IHostedService
-builder.Services.AddHostedService<Worker>(); // register Worker as a Singleton IHostedService
+//builder.Services.AddHostedService<Worker>(); // register Worker as a Singleton IHostedService
 
 //builder.Services.AddScoped<IAuditSessionService, AuditSessionService>(); // register IAuditSessionService with its implementation
 //builder.Services.AddSingleton<IAuditSessionService, AuditSessionService>(); // register IAuditSessionService with its implementation

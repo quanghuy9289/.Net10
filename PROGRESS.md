@@ -82,6 +82,14 @@ Library chỉ cung cấp giá trị mặc định nên dùng `TryAdd` để khô
 | Import props/targets | Tự gõ 2 dòng: Microsoft.Common.props ở đầu, Microsoft.CSharp.targets ở cuối |	Sdk="..." là cú pháp rút gọn của đúng 2 dòng đó (Sdk.props / Sdk.targets) |	Đây là thứ không bị thay thế, chỉ bị giấu đi. Bẫy: thứ tự props-trước/targets-sau vẫn quyết định ai đè ai; Directory.Build.props dừng ở file đầu tiên tìm thấy ngược lên cây thư mục, nhiều tầng phải tự GetPathOfFileAbove để nối |
 | Danh sách file & giá trị mặc định |	Liệt kê từng `<Compile Include="Models\Invoice.cs" />`; chép lại mọi default (FileAlignment, WarningLevel, 2 khối Debug/Release) |	Glob ngầm gom **/*.cs; chỉ ghi phần lệch khỏi mặc định — csproj 61 dòng còn 9 |	Đảo từ "khai hết" sang convention-over-configuration; hết merge conflict khi hai người cùng thêm file. Bẫy: glob nhặt cả file bạn không muốn — tắt bằng `<EnableDefaultCompileItems>false</EnableDefaultCompileItems>` (đặt giữa file vẫn hiệu lực, vì property được đánh giá xong hết trước item) |
 | Scope validation | ko có | mặc định bật trong môi trường Development khi dùng Host/WebApplication, nhưng tắt ở Production vì lý do hiệu năng | Vì thế có tình huống kinh điển: “trên máy tôi lỗi, lên server thì chạy”. Thực ra trên server nó vẫn sai, chỉ là sai âm thầm. |
+| ConfigurationManager.AppSettings["PageSize"], static, trả string | IConfiguration được inject qua DI. Thường không đọc trực tiếp mà bind sang class MiniCrmOptions | Hết static. Có kiểu, test được, override được |
+| web.config: một file XML, một nguồn duy nhất | Nhiều provider xếp chồng lên nhau: JSON, env var, user secrets, CLI... | Cùng một key có thể đến từ 5 nơi, nguồn đứng sau thắng |
+| Web.Release.config transform, chạy lúc publish | appsettings.{Environment}.json, áp dụng lúc runtime theo biến môi trường | Một bản build chạy được mọi môi trường. Đây chính là điều kiện để Docker ở tuần 6 hoạt động | 
+| <connectionStrings> | Section ConnectionStrings ở root + GetConnectionString("X") | Chỉ là quy ước tên key, không phải cơ chế riêng |
+| <appSettings file="secrets.config"> để giấu secret khỏi git | User Secrets (dev), env var hoặc vault (production) | |
+| Sửa web.config thì app pool restart | reloadOnChange: app đọc lại mà không restart | Chỉ có tác dụng nếu bạn dùng đúng interface |
+
+
 
 ## C# hiện đại
 | # | Cũ (.NET Framework / C# 6) | Mới (.NET 10 / C# 14) | Khác biệt |
