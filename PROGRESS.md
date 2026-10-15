@@ -9,6 +9,9 @@ Hiện tại: Tuần 2, Ngày 6
 - Ngày 4 - Domain code + test, làm quen C# hiện đại
 - Ngày 5 - Tổng kết tuần 1 + nullable reference types cho nghiêm túc
 - Ngày 6 - Generic Host + Worker
+- Ngày 7 - Dependency Injection (phần 1: cơ chế)
+- Ngày 8 — Dependency Injection (phần 2: pattern & bẫy)
+
 
 ## Câu hỏi còn treo
 (những chỗ chưa hiểu, chưa giải quyết)
@@ -49,7 +52,14 @@ netstandard2.0 — một assembly duy nhất, cả hai bên dùng được<br>
 Multi-target net48;net10.0 — hai assembly, mỗi bên lấy bản của mình<br>
 
 Chọn cái nào: netstandard2.0 đơn giản hơn nhưng bị khoá ở C# ~7.3 và không dùng được Span<T>, IAsyncEnumerable, nullable annotation đầy đủ. Multi-target phức tạp hơn nhưng nhánh net10.0 được hưởng trọn C# 14. Với project dùng chung nhiều và sống lâu, multi-target đáng công hơn.<br>
-netstandard2.0 bắt buộc khi assembly được tiêu thụ như một file mà bên tiêu thụ không có cơ chế chọn TFM — <Reference> + HintPath, plugin load theo thư mục, host bên thứ ba, Roslyn analyzer. Khi bên tiêu thụ là ProjectReference hoặc PackageReference thì nó không bắt buộc, chỉ là lựa chọn rẻ hơn multi-targeting: đổi chi phí build và #if lấy việc bị khoá ở mẫu số chung API và C# 7.3. Như vậy tùy vào project MiniCrm.Common, với case này, câu trả lời trung thực là: đây là đánh đổi chi phí, không phải ràng buộc kỹ thuật. netstandard2.0 cho library nhỏ, ổn định, ít API; multi-target cho library lớn, sống lâu, và bạn muốn nhánh mới hưởng C# 14.
+netstandard2.0 bắt buộc khi assembly được tiêu thụ như một file mà bên tiêu thụ không có cơ chế chọn TFM — <Reference> + HintPath, plugin load theo thư mục, host bên thứ ba, Roslyn analyzer. Khi bên tiêu thụ là ProjectReference hoặc PackageReference thì nó không bắt buộc, chỉ là lựa chọn rẻ hơn multi-targeting: đổi chi phí build và #if lấy việc bị khoá ở mẫu số chung API và C# 7.3. Như vậy tùy vào project MiniCrm.Common, với case này, câu trả lời trung thực là: đây là đánh đổi chi phí, không phải ràng buộc kỹ thuật. netstandard2.0 cho library nhỏ, ổn định, ít API; multi-target cho library lớn, sống lâu, và bạn muốn nhánh mới hưởng C# 14.<br>
+
+4. Khi nào AddSingleton<IFoo, Foo>() và AddSingleton<IFoo>(sp => new Foo(...)) khác nhau?<br>
+Mặc định nên dùng AddSingleton<IFoo, Foo>() vì nó rõ ràng, được validate lúc build, hỗ trợ open generic và TryAddEnumerable.<br>
+Chỉ chuyển sang factory khi cần: forward một instance sang nhiều interface, truyền tham số không có trong DI, chọn implementation theo runtime, hoặc tạo object qua builder hay static method. Khi đã dùng factory, ưu tiên `ActivatorUtilities.CreateInstance` thay vì `new` thủ công để giảm coupling. Ngoài ra, đừng bao giờ resolve service scoped bên trong factory của singleton.<br>
+
+5. Vì sao library nên dùng TryAdd còn app thì dùng Add?<br>
+Library chỉ cung cấp giá trị mặc định nên dùng `TryAdd` để không đè lựa chọn của app và không bị trùng khi gọi nhiều lần, còn app là người quyết định cuối cùng nên dùng `Add` để ý định rõ ràng và không bị bỏ qua âm thầm.<br>
 
 ## Bảng đối chiếu .NET Framework → .NET 10
 
