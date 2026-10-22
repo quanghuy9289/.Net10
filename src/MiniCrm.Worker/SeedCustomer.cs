@@ -23,7 +23,7 @@ public sealed class SeedCustomer(IServiceScopeFactory serviceScopeFactory, ILogg
         }
 
         var count = await _customerRepository.CountAsync(cancellationToken);
-        _logger.LogInformation($"Seeded {count} customers."); // log the number of customers
+        _logger.LogInformation("Seeded {CustomerCount} customers.", count); // log the number of customers
 
         _logger.LogInformation("Customers seeded successfully.");
     }

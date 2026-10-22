@@ -10,7 +10,7 @@ public sealed class CustomerService(ICustomerRepository customerRepository, IEnu
 {
     private readonly ICustomerRepository _customerRepository = customerRepository;
     private readonly IEnumerable<ICustomerValidator> _customerValidators = customerValidators;
-    private readonly ILogger<CustomerService> _logger = logger;
+
 
     public async Task<Result<Customer>> GetCustomerByIdAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -36,6 +36,7 @@ public sealed class CustomerService(ICustomerRepository customerRepository, IEnu
         }
         if (validationErrors.Any())
         {
+            logger.LogWarning("Validation failed for adding customer: {ValidationErrors}", validationErrors);
             return Result<Customer>.Failure(validationErrors);
         }
 
@@ -48,6 +49,7 @@ public sealed class CustomerService(ICustomerRepository customerRepository, IEnu
         var isAdded = await _customerRepository.AddAsync(customer, cancellationToken);
         if (!isAdded)
         {
+            logger.LogWarning("Failed to add customer: {CustomerId}", customer.Id);
             return Result<Customer>.Failure([new ValidationError(nameof(Customer.Id), "Customer already exists.")]);
         }
 

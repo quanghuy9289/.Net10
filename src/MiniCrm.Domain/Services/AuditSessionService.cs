@@ -9,13 +9,13 @@ public sealed class AuditSessionService : IAuditSessionService
     public AuditSessionService(ILogger<AuditSessionService> logger)
     {
         _logger = logger;
-        _logger.LogInformation("Audit session started." + this.GetHashCode());
+        _logger.LogInformation("Audit session started - {AuditSessionId}", this.GetHashCode());
     }
 
 
     public async ValueTask DisposeAsync()
     {
-        _logger.LogInformation("Audit session ended." + this.GetHashCode());
+        _logger.LogInformation("Audit session ended - {AuditSessionId}", this.GetHashCode());
         await Task.CompletedTask;
     }
 }

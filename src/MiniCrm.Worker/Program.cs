@@ -8,6 +8,17 @@ using Microsoft.Extensions.Options;
 
 var builder = Host.CreateApplicationBuilder(args); // config + logging + DI
 
+builder.Logging.AddJsonConsole(options =>
+{
+    options.IncludeScopes = true; // include scopes in the log output
+    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff "; // set the timestamp format
+    options.JsonWriterOptions = new System.Text.Json.JsonWriterOptions
+    {
+        Indented = true, // indent the JSON output
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // allow unsafe characters in JSON output
+    };
+});
+
 if (builder.Environment.IsDevelopment())
 {
     var root = (IConfigurationRoot)builder.Configuration;
@@ -33,7 +44,7 @@ builder.Services
     .ValidateDataAnnotations(); // validate MiniCrmOptions using data annotations
     //.ValidateOnStart(); // validate MiniCrmOptions on startup
 
-builder.Services.AddHostedService<ConfigDemoWorker>(); // register ConfigDemoWorker as a Singleton IHostedService
+//builder.Services.AddHostedService<ConfigDemoWorker>(); // register ConfigDemoWorker as a Singleton IHostedService
 builder.Services.AddMiniCrmDomain(); // register domain services and repositories
 
 builder.Services.AddKeyedSingleton<INotificationSender, EmailNotificationSender>(NotificationChannels.Email); // register INotificationSender with its implementation  
@@ -57,8 +68,8 @@ builder.Services.AddSingleton(sp =>
 //builder.Services.AddScoped<IServiceScopeFactory, IServiceScopeFactory>(); // register IServiceScopeFactory with its implementation
 //builder.Services.AddHostedService<LifecycleDemo>(); // register LifecycleDemo as a Singleton IHostedService
 
-//builder.Services.AddHostedService<SeedCustomer>(); // register SeedCustomer as a Singleton IHostedService
-//builder.Services.AddHostedService<Worker>(); // register Worker as a Singleton IHostedService
+builder.Services.AddHostedService<SeedCustomer>(); // register SeedCustomer as a Singleton IHostedService
+builder.Services.AddHostedService<Worker>(); // register Worker as a Singleton IHostedService
 
 //builder.Services.AddScoped<IAuditSessionService, AuditSessionService>(); // register IAuditSessionService with its implementation
 //builder.Services.AddSingleton<IAuditSessionService, AuditSessionService>(); // register IAuditSessionService with its implementation
@@ -73,21 +84,21 @@ var host = builder.Build(); // lock container and create the host
 
 //host.Services.GetRequiredService<IAuditSessionService>(); // resolve IAuditSessionService to ensure it is created
 
-for (int i = 1; i <= 2; i++)
-{
-    using var scope = host.Services.CreateScope(); // create a new scope for each iteration
-    var sp = scope.ServiceProvider; // get the service provider for the current scope
-    var repo1 = sp.GetRequiredService<ICustomerRepository>(); // resolve ICustomerRepository from the service provider
-    var repo2 = sp.GetRequiredService<ICustomerRepository>(); // resolve ICustomerRepository from the service provider
-    Console.WriteLine($"Iteration {i}: {repo1.InstanceId} - {repo2.InstanceId}"); // print the unique identifier of the repository instance
+// for (int i = 1; i <= 2; i++)
+// {
+//     using var scope = host.Services.CreateScope(); // create a new scope for each iteration
+//     var sp = scope.ServiceProvider; // get the service provider for the current scope
+//     var repo1 = sp.GetRequiredService<ICustomerRepository>(); // resolve ICustomerRepository from the service provider
+//     var repo2 = sp.GetRequiredService<ICustomerRepository>(); // resolve ICustomerRepository from the service provider
+//     Console.WriteLine($"Iteration {i}: {repo1.InstanceId} - {repo2.InstanceId}"); // print the unique identifier of the repository instance
 
-    // add customer from repo1 then get it from repo2 to demonstrate that they are the same instance
-    var customer = new MiniCrm.Domain.Entities.Customer { Id = Guid.NewGuid(), Name = $"Customer {i}", Email = $"customer{i}@example.com" };
-    await repo1.AddAsync(customer, CancellationToken.None); // add customer to repo1
-    var retrievedCustomer = await repo2.GetByIdAsync(customer.Id, CancellationToken.None); // get customer from repo2
-    Console.WriteLine($"Iteration {i}: Retrieved customer - {retrievedCustomer?.Name}"); // print the name of the retrieved customer
-    var count = await repo1.CountAsync(CancellationToken.None); // get the count of customers from repo1
-    Console.WriteLine($"Iteration {i}: Count of customers - {count}"); // print the count of customers
-}
+//     // add customer from repo1 then get it from repo2 to demonstrate that they are the same instance
+//     var customer = new MiniCrm.Domain.Entities.Customer { Id = Guid.NewGuid(), Name = $"Customer {i}", Email = $"customer{i}@example.com" };
+//     await repo1.AddAsync(customer, CancellationToken.None); // add customer to repo1
+//     var retrievedCustomer = await repo2.GetByIdAsync(customer.Id, CancellationToken.None); // get customer from repo2
+//     Console.WriteLine($"Iteration {i}: Retrieved customer - {retrievedCustomer?.Name}"); // print the name of the retrieved customer
+//     var count = await repo1.CountAsync(CancellationToken.None); // get the count of customers from repo1
+//     Console.WriteLine($"Iteration {i}: Count of customers - {count}"); // print the count of customers
+// }
 
 host.Run(); // run the host, which will start the Worker and block until shutdown

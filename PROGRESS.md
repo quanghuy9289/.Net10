@@ -11,6 +11,8 @@ Hiện tại: Tuần 2, Ngày 6
 - Ngày 6 - Generic Host + Worker
 - Ngày 7 - Dependency Injection (phần 1: cơ chế)
 - Ngày 8 — Dependency Injection (phần 2: pattern & bẫy)
+- Ngày 9 — Configuration & Options pattern
+- Ngày 10 - Logging có cấu trúc
 
 
 ## Câu hỏi còn treo
@@ -110,6 +112,12 @@ Library chỉ cung cấp giá trị mặc định nên dùng `TryAdd` để khô
 | 14 | HostingEnvironment.QueueBackgroundWorkItem, IRegisteredObject | BackgroundService | Trong IIS, AppDomain có thể recycle bất cứ lúc nào (idle timeout, recycle định kỳ), nên background work rất mong manh |
 | 15 | Windows Service (ServiceBase) | Worker + AddWindowsService() (package Microsoft.Extensions.Hosting.WindowsServices) | Cùng một code chạy được cả dạng console, Windows Service, systemd hay container |
 | 16 | System.Timers.Timer khởi tạo trong Global.asax | BackgroundService + PeriodicTimer | Có async, có cancellation, có DI |
+| 17 | static ILog log = LogManager.GetLogger(typeof(X)) | ILogger<X> inject qua constructor | Không còn static logger. Logger lấy từ DI nên test thay được |
+| 18 | Cấu hình <log4net> trong web.config | Section Logging trong appsettings.json | Dùng chung hệ configuration của Ngày 9, nên override được bằng env var hoặc CLI |
+| 19 | Appender (FileAppender, AdoNetAppender…) | Provider (Console, Debug, EventLog… hoặc Serilog làm provider) | MEL chỉ là abstraction. Thư viện (EF Core, ASP.NET Core) log vào cùng một ILogger, còn bạn chọn nơi ghi |
+| 20 | log.InfoFormat("Customer {0} created", id) | LogInformation("Customer {CustomerId} created", id) | Placeholder có tên, và tên đó trở thành field trong log | 
+| 21 | Trace.WriteLine, Console.WriteLine | Không dùng nữa |
+| 22 | LogicalThreadContext.Properties["CorrelationId"] (MDC/NDC) | logger.BeginScope(...) | Đi theo AsyncLocal, xuyên qua await |
 
 ## Blocker migration
 | Issue | .Net Framework | .Net 10 | Cách sửa |
