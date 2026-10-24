@@ -63,6 +63,37 @@ Chỉ chuyển sang factory khi cần: forward một instance sang nhiều inter
 5. Vì sao library nên dùng TryAdd còn app thì dùng Add?<br>
 Library chỉ cung cấp giá trị mặc định nên dùng `TryAdd` để không đè lựa chọn của app và không bị trùng khi gọi nhiều lần, còn app là người quyết định cuối cùng nên dùng `Add` để ý định rõ ràng và không bị bỏ qua âm thầm.<br>
 
+6. Captive dependency là gì, vì sao nguy hiểm<br>
+Captive dependency xảy ra khi một service có vòng đời dài “bắt giữ” một service có vòng đời ngắn hơn. Trường hợp điển hình là một Singleton nhận một Scoped (hoặc Transient) qua constructor. Singleton chỉ được tạo một lần, nên dependency bên trong nó cũng bị giữ suốt đời ứng dụng, dù nó được thiết kế để sống ngắn.<br>
+Ví dụ: EmailSender (Singleton) inject AppDbContext (Scoped). Điều này nguy hiểm vì những lý do sau:<br>
+
+- Không an toàn luồng: DbContext không thread-safe. Khi bị dùng chung cho mọi request đồng thời, nó sẽ gây exception hoặc làm hỏng dữ liệu.<br>
+- Dữ liệu cũ: change tracker tích lũy entity mãi mãi, nên bạn đọc phải dữ liệu đã lỗi thời.<br>
+- Rò rỉ bộ nhớ: object không bao giờ được giải phóng theo scope.<br>
+- Object đã bị dispose: nếu scope gốc bị dispose, Singleton vẫn giữ tham chiếu và gây ObjectDisposedException sau này.<br>
+- Bug ngầm: mọi thứ thường chạy ổn trên máy dev nhưng hỏng khi chịu tải thật.<br>
+
+Cách phòng tránh: bật ValidateScopes và ValidateOnBuild. Môi trường Development đã bật sẵn hai tùy chọn này, giúp lỗi lộ ra sớm. Nếu Singleton thật sự cần một Scoped service, hãy inject IServiceScopeFactory và tạo scope ngắn mỗi lần dùng.<br>
+
+7. Bốn nguồn config theo thứ tự ưu tiên<br>
+Với CreateApplicationBuilder, nguồn nạp sau sẽ ghi đè nguồn nạp trước. Từ thấp đến cao:<br>
+
+- appsettings.json<br>
+- appsettings.{Environment}.json, ví dụ appsettings.Production.json<br>
+- Biến môi trường (environment variables)<br>
+- Tham số dòng lệnh (command-line args), có ưu tiên cao nhất<br>
+
+Ngoài ra, User Secrets được chèn giữa bước 2 và 3, nhưng chỉ khi chạy ở môi trường Development. <br>
+
+8. Vì sao IOptionsSnapshot không dùng được trong Singleton<br>
+IOptionsSnapshot<T> được đăng ký với vòng đời Scoped. Nó tính lại giá trị options một lần cho mỗi scope (mỗi request), nhờ đó phản ánh thay đổi config giữa các request. Inject nó vào Singleton chính là một captive dependency như ở câu 6:<br>
+
+- Khi scope validation bật, container ném InvalidOperationException với nội dung “Cannot consume scoped service ... from singleton”.<br>
+- Kể cả khi tắt validation, snapshot sẽ bị đóng băng ở giá trị lúc Singleton được tạo. Như vậy nó mất hẳn lý do tồn tại là cập nhật theo config mới.<br>
+
+Giải pháp là dùng IOptionsMonitor<T>. Nó là Singleton, luôn trả giá trị mới nhất qua CurrentValue, và hỗ trợ OnChange để phản ứng khi config thay đổi. Nếu config không bao giờ đổi lúc runtime, IOptions<T> (Singleton, đọc một lần) là đủ.<br>
+
+
 ## Bảng đối chiếu .NET Framework → .NET 10
 
 
