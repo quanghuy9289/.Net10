@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/MiniCrm.Api/MiniCrm.Api.csproj" />
     <Project Path="src/MiniCrm.Cli/MiniCrm.Cli.csproj" />
     <Project Path="src/MiniCrm.Domain/MiniCrm.Domain.csproj" />
     <Project Path="src/MiniCrm.Worker/MiniCrm.Worker.csproj" />

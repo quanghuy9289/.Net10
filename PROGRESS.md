@@ -93,6 +93,8 @@ IOptionsSnapshot<T> được đăng ký với vòng đời Scoped. Nó tính l�
 
 Giải pháp là dùng IOptionsMonitor<T>. Nó là Singleton, luôn trả giá trị mới nhất qua CurrentValue, và hỗ trợ OnChange để phản ứng khi config thay đổi. Nếu config không bao giờ đổi lúc runtime, IOptions<T> (Singleton, đọc một lần) là đủ.<br>
 
+9. Vì sao context trước `app.UseRouting` không thấy endpoint của request, còn sau `UseRouting` thì có thể thấy?<br>
+Middleware trong .NET 10 được nạp vào theo thứ tự `búp bê Nga` (A→, B→, C→, controller, C←, B←, A←), và `app.UseRouting` gắn endpoint vào context, nên sau `UseRouting` thì context mới thấy được endpoint của request. Đây cũng là lý do vì sao `UseAuthorization` phải sau `UseRouting`<br>
 
 ## Bảng đối chiếu .NET Framework → .NET 10
 
@@ -121,6 +123,11 @@ Giải pháp là dùng IOptionsMonitor<T>. Nó là Singleton, luôn trả giá t
 | <connectionStrings> | Section ConnectionStrings ở root + GetConnectionString("X") | Chỉ là quy ước tên key, không phải cơ chế riêng |
 | <appSettings file="secrets.config"> để giấu secret khỏi git | User Secrets (dev), env var hoặc vault (production) | |
 | Sửa web.config thì app pool restart | reloadOnChange: app đọc lại mà không restart | Chỉ có tác dụng nếu bạn dùng đúng interface |
+| | IHttpModule (đăng ký event BeginRequest, AuthenticateRequest...) |	Middleware (app.Use / class có InvokeAsync) |	Event cố định → chuỗi lồng nhau. Thứ tự do code quyết định. Middleware nhìn được cả “trước” lẫn “sau”, và chặn ngang được |
+| | IHttpHandler (.ashx, xử lý trọn request) |	Endpoint (MapGet, controller action) hoặc app.Run |	Handler được chọn qua Web.config. Endpoint được chọn qua routing, và metadata của nó lộ ra cho middleware |
+| | DelegatingHandler (Web API 2) |	Middleware (phía server) |	Cùng mô hình lồng nhau, nhưng trước đây chỉ chạy bên trong Web API, sau routing. Lưu ý: DelegatingHandler vẫn tồn tại trong .NET 10, nhưng giờ dùng cho HttpClient gọi ra ngoài (Ngày 23) |
+| | OWIN/Katana middleware |	Middleware |	Tổ tiên trực tiếp. Khác ở chỗ giờ là pipeline duy nhất, không còn chạy chung với pipeline IIS |
+| | Global.asax + WebApiConfig + RouteConfig + <modules> trong Web.config |	Program.cs |	5–6 chỗ gom về 1, chia rõ pha đăng ký và pha pipeline |
 
 
 
