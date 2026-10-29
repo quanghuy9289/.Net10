@@ -1,6 +1,22 @@
-@MiniCrm.Api_HostAddress = http://localhost:5294
+@baseUrl = http://localhost:5294
 
-GET {{MiniCrm.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Tạo hợp lệ → mong đợi 201 + Location
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
 
-###
+{ "name": "Nguyễn Văn An", "email": "an@example.com" }
+
+### 2. Dữ liệu sai → mong đợi 400
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{ "name": "", "email": "khong-phai-email" }
+
+### 3. Không tồn tại → 404
+GET {{baseUrl}}/api/customers/999
+
+### 4. Vi phạm constraint → 404 (KHÔNG phải 400)
+GET {{baseUrl}}/api/customers/0
+
+### 5. Danh sách
+GET {{baseUrl}}/api/customers

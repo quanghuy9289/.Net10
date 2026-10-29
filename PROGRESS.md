@@ -128,8 +128,19 @@ Middleware trong .NET 10 được nạp vào theo thứ tự `búp bê Nga` (A�
 | | DelegatingHandler (Web API 2) |	Middleware (phía server) |	Cùng mô hình lồng nhau, nhưng trước đây chỉ chạy bên trong Web API, sau routing. Lưu ý: DelegatingHandler vẫn tồn tại trong .NET 10, nhưng giờ dùng cho HttpClient gọi ra ngoài (Ngày 23) |
 | | OWIN/Katana middleware |	Middleware |	Tổ tiên trực tiếp. Khác ở chỗ giờ là pipeline duy nhất, không còn chạy chung với pipeline IIS |
 | | Global.asax + WebApiConfig + RouteConfig + <modules> trong Web.config |	Program.cs |	5–6 chỗ gom về 1, chia rõ pha đăng ký và pha pipeline |
-
-
+| ApiController attribute | ApiController | ControllerBase + [ApiController] | Thiếu [ApiController] thì body bị bỏ qua và validation bị bỏ qua, không báo lỗi gì |
+| Action result | IHttpActionResult | IActionResult / ActionResult<T> | ActionResult<T> thay luôn [ResponseType] |
+| HttpResponse | Request.CreateResponse(HttpStatusCode.OK, x) | Ok(x), StatusCode(code, x)	| Không cần Request nữa |
+| HttpResponseMessage | HttpResponseMessage | IActionResult. Header qua Response.Headers, file qua File(...) | Âm thầm: trả HttpResponseMessage từ action sẽ bị serialize thành JSON ({"version":..,"statusCode":..}) thay vì thành HTTP response. Bản shim tương thích đã bị bỏ từ 3.0 |
+| NotFound | throw new HttpResponseException(HttpStatusCode.NotFound) | return NotFound(); | Không còn exception này. Đừng thay bằng throw exception khác, vì nó sẽ thành 500 |
+| BadRequest | BadRequest(ModelState) | ValidationProblem(ModelState), hoặc để [ApiController] tự làm | Shape response khác Web API 2 |
+| Http Method | Verb suy từ tên method (GetX, PostX) | Bắt buộc [HttpGet], [HttpPost]... | Âm thầm: thiếu attribute thì action khớp mọi verb |
+| Route | [RoutePrefix] + [Route] | [Route] trên class + [HttpGet("...")] | |
+| Map controller endpoint | config.MapHttpAttributeRoutes() | app.MapControllers()	| |
+| Binding data | [FromUri] | [FromQuery] / [FromRoute] | |
+| Validation model | ValidateModelAttribute tự viết | Có sẵn trong [ApiController] | Xoá filter cũ, đừng port sang |
+| Api config | GlobalConfiguration.Configure(WebApiConfig.Register)	| Program.cs |
+| Action name | Tên action GetByIdAsync | Action thực tế tên GetById | nameof(...Async) throw lúc runtime |
 
 ## C# hiện đại
 | # | Cũ (.NET Framework / C# 6) | Mới (.NET 10 / C# 14) | Khác biệt |

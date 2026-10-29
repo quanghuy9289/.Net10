@@ -2,7 +2,7 @@ using MiniCrm.Domain.Validation;
 
 namespace MiniCrm.Domain.Entities;
 
-public sealed class Customer
+public sealed record  Customer
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
     public required string Name { get; init; }
