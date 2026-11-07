@@ -4,13 +4,25 @@
 POST {{baseUrl}}/api/customers
 Content-Type: application/json
 
-{ "name": "Nguyễn Văn An", "email": "an@example.com" }
+{ "name": "Nguyễn Văn An", "email": "an@example.com", "firstContactedAt": "2026/10/10" }
 
 ### 2. Dữ liệu sai → mong đợi 400
 POST {{baseUrl}}/api/customers
 Content-Type: application/json
 
 { "name": "", "email": "khong-phai-email" }
+
+### 3. Thiếu hẳn field "name" (không gửi key)
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{ "email": "an@example.com", "firstContactedAt": "10/10/2026" }
+
+### 4. JSON hỏng cú pháp: { "name": "An", }
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{ "name": "An", }
 
 ### 3. Không tồn tại → 404
 GET {{baseUrl}}/api/customers/999

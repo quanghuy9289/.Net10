@@ -16,7 +16,7 @@ public sealed class ContactsController(ICustomerRepository repository) : Control
             return NotFound();
         }
 
-        return customer.Contacts.Select(ContactResponse.From).ToList();
+        return customer.Contacts.Select(c => c.ToResponse()).ToList();
     }
 
     // GET api/customers/5/contacts/12
@@ -35,6 +35,6 @@ public sealed class ContactsController(ICustomerRepository repository) : Control
             return NotFound();
         }
 
-        return ContactResponse.From(contact);
+        return contact.ToResponse();
     }
 }

@@ -14,7 +14,7 @@ public sealed class CustomersController(ICustomerRepository repository) : Contro
     public async Task<ActionResult<List<CustomerResponse>>> GetAll(CancellationToken ct)
     {
         var customers = await repository.GetAllAsync(ct);
-        return customers.Select(CustomerResponse.From).ToList();
+        return customers.Select(customer => customer.ToResponse()).ToList();
     }
 
     // GET api/customers/5 → 200 | 404
@@ -27,22 +27,18 @@ public sealed class CustomersController(ICustomerRepository repository) : Contro
             return NotFound();
         }
 
-        return CustomerResponse.From(customer); // implicit -> 200 OK
+        return customer.ToResponse(); // implicit -> 200 OK
     }
 
     // POST api/customers → 201 + Location | 400 (tự động)
     [HttpPost]
-    public async Task<ActionResult<CustomerResponse>> Create([FromBody] CreateCustomerRequest request, CancellationToken ct)
+    public async Task<ActionResult<CustomerResponse>> Create(CreateCustomerRequest request, CancellationToken ct)
     {
-        var customer = new Customer
-        {
-            Name = request.Name,
-            Email = request.Email,
-        };
+        var customer = request.ToDomain();
 
         await repository.AddAsync(customer, ct);
 
-        return CreatedAtAction(nameof(GetById), new { id = customer.Id }, CustomerResponse.From(customer));
+        return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer.ToResponse());
     }
 
     // PUT api/customers/5 → 204 | 404 | 400

@@ -8,6 +8,7 @@ public sealed record  Customer
     public required string Name { get; init; }
     public required string Email { get; init; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    public DateOnly? FirstContactedAt { get; init; } = null;
     public bool IsActive { get; init; } = true;
 
     private readonly List<Contact> _contacts = [];
