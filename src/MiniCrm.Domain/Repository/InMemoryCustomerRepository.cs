@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
 using MiniCrm.Domain.Abstractions;
 using MiniCrm.Domain.Entities;
 using MiniCrm.Domain.Validation;

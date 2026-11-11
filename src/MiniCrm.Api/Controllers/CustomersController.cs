@@ -19,6 +19,7 @@ public sealed class CustomersController(ICustomerRepository repository) : Contro
 
     // GET api/customers/5 → 200 | 404
     [HttpGet("{id:guid}")]
+    [ServiceFilter<CustomerExistsFilter>] // Apply the CustomerExistsFilter to this action
     public async Task<ActionResult<CustomerResponse>> GetById(Guid id, CancellationToken ct)
     {
         var customer = await repository.GetByIdAsync(id, ct);

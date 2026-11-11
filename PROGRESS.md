@@ -173,3 +173,10 @@ Middleware trong .NET 10 được nạp vào theo thứ tự `búp bê Nga` (A�
 | --- | --- | --- | --- |
 | Encoding.Default | ANSI codepage của hệ thống (trên Windows tiếng Việt: 1258) | Luôn luôn UTF-8 | Codepage không còn built-in. .NET 10 chỉ có sẵn ASCII, UTF-8, UTF-16, UTF-32, Latin1. Mọi codepage kiểu Windows (1258 tiếng Việt, 1252, 932...) không có. Encoding.GetEncoding(1258) sẽ throw lúc runtime, không phải lỗi compile. <br>Cách sửa: thêm package `System.Text.Encoding.CodePages`, rồi đăng ký một lần lúc khởi động<br> `Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);` |
 | Validation | Response của nó có dạng `{"Message":"The request is invalid.","ModelState":{"request.Email":["..."]}}` | ProblemDetails theo chuẩn RFC 9457 | Ở .NET 10, [ApiController] chạy filter trước action. Nếu ModelState không hợp lệ thì action không bao giờ được gọi, và client nhận. Nếu client cũ đang parse ModelState hoặc Message thì client đó sẽ hỏng. |
+
+## Bẫy âm thầm
+
+| Section | Issue | Cách sửa |
+| --- | --- | --- |
+| Filter | Filter không làm gì khi body sai validation. Lý do là ModelStateInvalidFilter của [ApiController] có Order = -2000, chạy trước filter của bạn và short-circuit trả 400. Nếu bạn định dùng action filter để audit mọi request, bạn sẽ âm thầm mất các request lỗi validation |  |
+| Filter | nếu bạn đăng ký vừa global vừa attribute thì filter sẽ chạy hai lần | |

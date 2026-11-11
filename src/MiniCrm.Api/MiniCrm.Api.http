@@ -4,7 +4,7 @@
 POST {{baseUrl}}/api/customers
 Content-Type: application/json
 
-{ "name": "Nguyễn Văn An", "email": "an@example.com", "firstContactedAt": "2026/10/10" }
+{ "name": "Nguyễn Văn An", "email": "an@example.com", "firstContactedAt": "10/10/2026" }
 
 ### 2. Dữ liệu sai → mong đợi 400
 POST {{baseUrl}}/api/customers
@@ -24,11 +24,14 @@ Content-Type: application/json
 
 { "name": "An", }
 
-### 3. Không tồn tại → 404
+### 5. Tồn tại
+GET {{baseUrl}}/api/customers/01a1c4d6-4647-783d-8655-4a5178d3f04a
+
+### 6. Không tồn tại → 404
 GET {{baseUrl}}/api/customers/999
 
-### 4. Vi phạm constraint → 404 (KHÔNG phải 400)
+### 7. Vi phạm constraint → 404 (KHÔNG phải 400)
 GET {{baseUrl}}/api/customers/0
 
-### 5. Danh sách
+### 8. Danh sách
 GET {{baseUrl}}/api/customers
