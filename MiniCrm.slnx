@@ -7,5 +7,9 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MiniCrm.Domain.Tests/MiniCrm.Domain.Tests.csproj" />
+    <Project Path="tests/Todo.API.Tests/Todo.API.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Todo.API/">
+    <Project Path="tests/Todo.API/TodoApi.csproj" />
   </Folder>
 </Solution>
