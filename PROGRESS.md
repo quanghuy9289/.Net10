@@ -141,6 +141,8 @@ Middleware trong .NET 10 được nạp vào theo thứ tự `búp bê Nga` (A�
 | Validation model | ValidateModelAttribute tự viết | Có sẵn trong [ApiController] | Xoá filter cũ, đừng port sang |
 | Api config | GlobalConfiguration.Configure(WebApiConfig.Register)	| Program.cs |
 | Action name | Tên action GetByIdAsync | Action thực tế tên GetById | nameof(...Async) throw lúc runtime |
+| Unit test controller | Mock HttpContextBase, ControllerContext, Request... rất cồng kềnh | new CustomersController(fakeRepo). Controller chỉ là class có constructor injection | |
+| Integration test | MVC 5: gần như phải deploy lên IIS Express rồi gọi HTTP. Web API 2: có HttpServer in-memory hoặc Microsoft.Owin.Testing, nhưng đó là pipeline OWIN, khác pipeline chạy thật trên IIS | WebApplicationFactory<Program> chạy đúng Program.cs của bạn: cùng middleware, routing, filter, DI, model binding | Unit test chỉ test một class/hàm, tách biệt khỏi phần còn lại, nên không thể test các middleware, routing, filter, DI, model binding |
 
 ## C# hiện đại
 | # | Cũ (.NET Framework / C# 6) | Mới (.NET 10 / C# 14) | Khác biệt |

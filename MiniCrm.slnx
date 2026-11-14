@@ -6,6 +6,7 @@
     <Project Path="src/MiniCrm.Worker/MiniCrm.Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/MiniCrm.Api.Tests/MiniCrm.Api.Tests.csproj" />
     <Project Path="tests/MiniCrm.Domain.Tests/MiniCrm.Domain.Tests.csproj" />
     <Project Path="tests/Todo.API.Tests/Todo.API.Tests.csproj" />
   </Folder>
