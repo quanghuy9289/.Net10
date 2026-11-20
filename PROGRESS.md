@@ -13,7 +13,12 @@ Hiện tại: Tuần 2, Ngày 6
 - Ngày 8 — Dependency Injection (phần 2: pattern & bẫy)
 - Ngày 9 — Configuration & Options pattern
 - Ngày 10 - Logging có cấu trúc
-
+- Ngày 11 — WebApplication & middleware pipeline
+- Ngày 12 — Routing & Controllers
+- Ngày 13 — Model binding, validation, System.Text.Json
+- Ngày 14 — Filters, exception handling, HttpContext
+- Ngày 15 — Testing ASP.NET Core
+- Ngày 16 — DbContext & code-first
 
 ## Câu hỏi còn treo
 (những chỗ chưa hiểu, chưa giải quyết)

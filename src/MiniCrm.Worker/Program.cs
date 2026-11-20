@@ -5,6 +5,9 @@ using MiniCrm.Domain.Validation;
 using MiniCrm.Worker;
 using MiniCrm.Worker.Notification;
 using Microsoft.Extensions.Options;
+using MiniCrm.Infrastructure;
+using MiniCrm.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args); // config + logging + DI
 
@@ -24,17 +27,17 @@ if (builder.Environment.IsDevelopment())
     var root = (IConfigurationRoot)builder.Configuration;
     Console.WriteLine($"[config] ConnectionStrings:MiniCrm => {root.GetConnectionString("MiniCrm")}"); // get the connection string for MiniCrm
     
-    foreach(var provider in root.Providers.Reverse())
-    {
-        if (provider.TryGet("MiniCrm:PageSize", out var value))
-        {
-            Console.WriteLine($"[config] {provider} => {value}"); // log the provider and value for MiniCrm:PageSize
-        }
-        else
-        {
-            Console.WriteLine($"[config] {provider} => MiniCrm:PageSize not found");
-        }
-    }
+    // foreach(var provider in root.Providers.Reverse())
+    // {
+    //     if (provider.TryGet("MiniCrm:PageSize", out var value))
+    //     {
+    //         Console.WriteLine($"[config] {provider} => {value}"); // log the provider and value for MiniCrm:PageSize
+    //     }
+    //     else
+    //     {
+    //         Console.WriteLine($"[config] {provider} => MiniCrm:PageSize not found");
+    //     }
+    // }
 }
 
 builder.Services
@@ -46,6 +49,8 @@ builder.Services
 
 //builder.Services.AddHostedService<ConfigDemoWorker>(); // register ConfigDemoWorker as a Singleton IHostedService
 builder.Services.AddMiniCrmDomain(); // register domain services and repositories
+
+builder.Services.AddMiniCrmInfrastructure(builder.Configuration); // register infrastructure services and repositories
 
 builder.Services.AddKeyedSingleton<INotificationSender, EmailNotificationSender>(NotificationChannels.Email); // register INotificationSender with its implementation  
 builder.Services.AddKeyedSingleton<INotificationSender, SmsNotificationSender>(NotificationChannels.Sms); // register INotificationSender with its implementation  
@@ -68,7 +73,7 @@ builder.Services.AddSingleton(sp =>
 //builder.Services.AddScoped<IServiceScopeFactory, IServiceScopeFactory>(); // register IServiceScopeFactory with its implementation
 //builder.Services.AddHostedService<LifecycleDemo>(); // register LifecycleDemo as a Singleton IHostedService
 
-builder.Services.AddHostedService<SeedCustomer>(); // register SeedCustomer as a Singleton IHostedService
+//builder.Services.AddHostedService<SeedCustomer>(); // register SeedCustomer as a Singleton IHostedService
 builder.Services.AddHostedService<Worker>(); // register Worker as a Singleton IHostedService
 
 //builder.Services.AddScoped<IAuditSessionService, AuditSessionService>(); // register IAuditSessionService with its implementation
@@ -100,5 +105,23 @@ var host = builder.Build(); // lock container and create the host
 //     var count = await repo1.CountAsync(CancellationToken.None); // get the count of customers from repo1
 //     Console.WriteLine($"Iteration {i}: Count of customers - {count}"); // print the count of customers
 // }
+
+// example for testing the database connection and logging the result
+    // using var scope = host.Services.CreateScope(); // create a new scope for the host
+    // using var scope2 = host.Services.CreateScope(); // create a new scope for the host
+    // // Perform any necessary operations within the scope
+    // var db = scope.ServiceProvider.GetRequiredService<MiniCrmDbContext>(); // resolve MiniCrmDbContext from the service provider
+    // var db1 = scope2.ServiceProvider.GetRequiredService<MiniCrmDbContext>(); // resolve MiniCrmDbContext from the service provider
+    // var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>(); // resolve ILogger<Program> from the service provider
+
+    // logger.LogInformation("Can connect db: {CanConnect}", await db.Database.CanConnectAsync()); // log whether the database can be connected to
+    // logger.LogInformation("Can connect db1: {CanConnect}", await db1.Database.CanConnectAsync()); // log whether the database can be connected to
+    // //logger.LogInformation("Schema EF created script: {Script}", db.Database.GenerateCreateScript()); // log the EF generated create script for the database schema
+
+    // Task.WhenAll(
+    //     db.Database.ExecuteSqlRawAsync("SELECT 1"), // execute a raw SQL query to test the database connection
+    //     db1.Database.ExecuteSqlRawAsync("SELECT 1") // execute a raw SQL query to test the database connection
+    // ).Wait(); // wait for both tasks to complete
+
 
 host.Run(); // run the host, which will start the Worker and block until shutdown

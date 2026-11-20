@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
@@ -15,5 +19,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\MiniCrm.Domain\MiniCrm.Domain.csproj" />
+    <ProjectReference Include="..\MiniCrm.Infrastructure\MiniCrm.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

@@ -2,14 +2,14 @@ using MiniCrm.Domain.Validation;
 
 namespace MiniCrm.Domain.Entities;
 
-public sealed record  Customer
+public sealed class Customer
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
     public required string Name { get; init; }
-    public required string Email { get; init; }
+    public required string Email { get; set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
-    public DateOnly? FirstContactedAt { get; init; } = null;
-    public bool IsActive { get; init; } = true;
+    public DateOnly? FirstContactedAt { get; init; }
+    public bool IsActive { get; set; } = true;
 
     private readonly List<Contact> _contacts = [];
     public IReadOnlyList<Contact> Contacts => _contacts;

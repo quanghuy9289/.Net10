@@ -72,9 +72,9 @@ public static class CustomerMappings
     };
 }
 
-public sealed record ContactResponse(Guid Id, Guid CustomerId, ContactType Type, string Value, Note Note);
+public sealed record ContactResponse(Guid Id, Guid CustomerId, ContactType Type, string Value);
 
 public static class ContactMappings
 {
-    public static ContactResponse ToResponse(this Contact c) => new (c.Id, c.CustomerId, c.Type, c.Value, c.Note);
+    public static ContactResponse ToResponse(this Contact c) => new (c.Id, c.CustomerId, c.Type, c.Value);
 }

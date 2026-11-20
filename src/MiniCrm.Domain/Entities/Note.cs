@@ -5,6 +5,6 @@ public sealed class Note
     public Guid Id { get; init; }
     public Guid CustomerId { get; init; }
     public string Content { get; init; } = string.Empty;
-    public Guid AuthorId { get; init; }
+    public string AuthorId { get; init; } = string.Empty;
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 }
