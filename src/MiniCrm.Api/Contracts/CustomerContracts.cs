@@ -13,6 +13,9 @@ public sealed record CreateCustomerRequest
     [Required, EmailAddress]
     public string Email {get; init;} = string.Empty;
 
+    [Required, StringLength(20)]
+    public string Phone {get; init;} = string.Empty;
+
     [JsonConverter(typeof(DayMonthYearDateOnlyConverter))]
     public DateOnly? FirstContactedAt {get; init;} = null;
 }
@@ -25,6 +28,9 @@ public sealed record UpdateCustomerRequest
 
     [Required, EmailAddress]
     public string Email {get; init;} = string.Empty;
+
+    [Required, StringLength(20)]
+    public string Phone {get; init;} = string.Empty;
 
     [JsonConverter(typeof(DayMonthYearDateOnlyConverter))]
     public DateOnly? FirstContactedAt {get; init;} = null;
@@ -69,6 +75,7 @@ public static class CustomerMappings
         Email = request.Email,
         FirstContactedAt = request.FirstContactedAt,
         IsActive = request.IsActive,
+        UpdatedAt = DateTimeOffset.UtcNow,
     };
 }
 

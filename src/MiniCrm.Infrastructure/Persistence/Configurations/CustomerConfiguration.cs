@@ -26,5 +26,17 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .WithOne()
             .HasForeignKey(n => n.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // seed data
+        builder.HasData(
+            new Customer
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Name = "Acme Corp",
+                Email = "contact@acme.test",
+                IsActive = true,
+                CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 21, 10, 41, 49, 905, DateTimeKind.Unspecified).AddTicks(9413), new TimeSpan(0, 0, 0, 0, 0))
+            }
+        );
     }
 }

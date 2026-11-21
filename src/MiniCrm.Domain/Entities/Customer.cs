@@ -5,9 +5,10 @@ namespace MiniCrm.Domain.Entities;
 public sealed class Customer
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required string Name { get; init; }
+    public required string Name { get; set; }
     public required string Email { get; set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? UpdatedAt { get; set; }
     public DateOnly? FirstContactedAt { get; init; }
     public bool IsActive { get; set; } = true;
 

@@ -51,8 +51,12 @@ public sealed class CustomersController(ICustomerRepository repository) : Contro
             return NotFound();
 
         // Nếu Customer là record: dùng `with`. Nếu là class có setter: gán trực tiếp.
-        var updated = existing with { Name = request.Name, Email = request.Email, IsActive = request.IsActive };
-        await repository.UpdateAsync(updated, ct);
+        existing.Name = request.Name;
+        existing.Email = request.Email;
+        existing.IsActive = request.IsActive;
+        existing.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await repository.UpdateAsync(existing, ct);
 
         return NoContent();
     }

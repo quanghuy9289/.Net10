@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using MiniCrm.Api;
 using MiniCrm.Api.ExceptionHandling;
 using MiniCrm.Api.Filters;
-using MiniCrm.Api.Helper;
-using MiniCrm.Api.Middleware;
-using MiniCrm.Domain.Abstractions;
-using MiniCrm.Domain.Repository;
+using MiniCrm.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +28,9 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddOpenApi();
 builder.Services.AddRouting(o => o.LowercaseQueryStrings = true); // Location header: /api/customers/1 thay vì /api/Customers/1
 
-builder.Services.AddSingleton<InMemoryStore>();
-builder.Services.AddSingleton<ICustomerRepository, InMemoryCustomerRepository>();
+builder.Services.AddMiniCrmDomain(); // register domain services and repositories
+builder.Services.AddMiniCrmInfrastructure(builder.Configuration); // register infrastructure services and repositories
+
 var app = builder.Build();
 
 

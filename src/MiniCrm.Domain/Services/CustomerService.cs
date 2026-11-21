@@ -43,7 +43,7 @@ public sealed class CustomerService(ICustomerRepository customerRepository, IEnu
         var customer = new Customer
         {
             Name = request.Name,
-            Email = request.Email,
+            Email = request.Email,            
         };
 
         var isAdded = await _customerRepository.AddAsync(customer, cancellationToken);
@@ -87,6 +87,7 @@ public sealed class CustomerService(ICustomerRepository customerRepository, IEnu
             Name = request.Name,
             Email = request.Email,
             CreatedAt = existingCustomer.Value.CreatedAt,
+            UpdatedAt = DateTimeOffset.UtcNow,
             IsActive = existingCustomer.Value.IsActive,
         };
 

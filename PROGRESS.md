@@ -19,6 +19,7 @@ Hiện tại: Tuần 2, Ngày 6
 - Ngày 14 — Filters, exception handling, HttpContext
 - Ngày 15 — Testing ASP.NET Core
 - Ngày 16 — DbContext & code-first
+- Ngày 17 — Migrations
 
 ## Câu hỏi còn treo
 (những chỗ chưa hiểu, chưa giải quyết)
@@ -148,6 +149,12 @@ Middleware trong .NET 10 được nạp vào theo thứ tự `búp bê Nga` (A�
 | Action name | Tên action GetByIdAsync | Action thực tế tên GetById | nameof(...Async) throw lúc runtime |
 | Unit test controller | Mock HttpContextBase, ControllerContext, Request... rất cồng kềnh | new CustomersController(fakeRepo). Controller chỉ là class có constructor injection | |
 | Integration test | MVC 5: gần như phải deploy lên IIS Express rồi gọi HTTP. Web API 2: có HttpServer in-memory hoặc Microsoft.Owin.Testing, nhưng đó là pipeline OWIN, khác pipeline chạy thật trên IIS | WebApplicationFactory<Program> chạy đúng Program.cs của bạn: cùng middleware, routing, filter, DI, model binding | Unit test chỉ test một class/hàm, tách biệt khỏi phần còn lại, nên không thể test các middleware, routing, filter, DI, model binding |
+| Migration history | EDMX: "Update Model from Database", không có lịch sử schema | Migrations: code là nguồn sự thật, mỗi thay đổi là một file trong Git | Biết chính xác mỗi DB đang ở version nào |
+| Code-first | EF6 Code First: model lưu dạng blob trong .resx và __MigrationHistory | Snapshot là file C# đọc được | Conflict giữa các branch merge được bằng tay |
+| Add migration | Add-Migration của EF6 cần kết nối DB | migrations add không cần DB | Add migration offline được |
+| Migrate khi start app | CreateDatabaseIfNotExists / MigrateDatabaseToLatestVersion (initializer chạy ngầm) | EnsureCreated() / Migrate() gọi tường minh | Không còn chuyện DB tự thay đổi khi app khởi động |
+| sql script | Script SQL viết tay gửi DBA | migrations script --idempotent hoặc bundle | Script được sinh từ code, chạy lại an toàn |
+
 
 ## C# hiện đại
 | # | Cũ (.NET Framework / C# 6) | Mới (.NET 10 / C# 14) | Khác biệt |

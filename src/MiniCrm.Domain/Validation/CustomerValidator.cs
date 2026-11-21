@@ -17,6 +17,10 @@ public class CustomerRequest
     [EmailAddress(ErrorMessage = "Invalid email format.")]
     [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
     public string Email { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Customer phone is required.")]
+    [StringLength(20, ErrorMessage = "Phone cannot exceed 20 characters.")]
+    public string Phone { get; init; } = string.Empty;
 }
 
 // public class CustomerValidator : ICustomerValidator
